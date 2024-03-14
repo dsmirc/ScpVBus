@@ -1,0 +1,40 @@
+name: Compile App
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup msbuild
+        uses: microsoft/setup-msbuild@v1
+
+      - name: Enable Developer Command Prompt
+        uses: ilammy/msvc-dev-cmd@v1.13.0
+
+      - name: setup nuget
+        uses: nuget/setup-nuget@v2
+        with:
+          nuget-version: latest
+          
+      - name: install
+        run: |
+         nuget install SharpDX
+         nuget install SharpDX.XInput
+
+      - name: Compile for Windows
+        run: |
+         msbuild ScpVBus.sln
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: windows-executable
+          path: .
